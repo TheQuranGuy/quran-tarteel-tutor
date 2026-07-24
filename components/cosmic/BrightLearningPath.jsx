@@ -1,0 +1,22 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { COSMIC_UNITS, getCosmicProgress } from "../../lib/cosmic";
+import BrightCard from "./BrightCard";
+import CosmicButton from "./CosmicButton";
+import RewardChest from "./RewardChest";
+import StarParticles from "./StarParticles";
+import { useCosmicUser } from "./useCosmicUser";
+
+export default function BrightLearningPath() {
+  const router = useRouter();
+  const user = useCosmicUser();
+  const [openUnit, setOpenUnit] = useState(1);
+  const completed = new Set(user.surahsCompleted || []);
+  const mastered = new Set(user.ayahsMastered || []);
+  const progress = useMemo(() => new Map(COSMIC_UNITS.map((unit) => [unit.id, getCosmicProgress(user, unit)])), [user]);
+
+  return <main className="cosmic-bright" style={{ position: "relative", overflow: "hidden", padding: "42px 16px 90px" }}><StarParticles /><section style={{ position: "relative", width: "min(960px,100%)", margin: "0 auto" }}><header style={{ display: "flex", justifyContent: "space-between", alignItems: "end", gap: 16, flexWrap: "wrap" }}><div><p style={{ margin: 0, color: "#637294", fontWeight: 900, letterSpacing: ".12em", fontSize: 12 }}>YOUR LEARNING PATH</p><h1 style={{ margin: "7px 0", fontSize: "clamp(2.7rem,7vw,5.4rem)", letterSpacing: "-.065em", lineHeight: .94 }}>A bright path through every ayah.</h1><p style={{ maxWidth: 520, margin: 0, color: "#617093", lineHeight: 1.65 }}>Choose a Surah planet, then take its ayah lessons one gentle step at a time.</p></div><RewardChest id="bright-daily-path" reward={20} label="Bright path reward" /></header><div style={{ position: "relative", display: "grid", gap: 28, marginTop: 42 }}><div aria-hidden="true" style={{ position: "absolute", top: 90, bottom: 100, left: "50%", width: 5, borderRadius: 99, transform: "translateX(-50%) rotate(11deg)", background: "linear-gradient(#89efd0,#f4a7d8,#98d7ff)", boxShadow: "0 0 22px rgba(200,120,210,.38)" }} />{COSMIC_UNITS.map((unit, index) => { const previous = COSMIC_UNITS[index - 1]; const locked = index > 0 && !completed.has(previous.id); const active = openUnit === unit.id; const unitProgress = progress.get(unit.id); return <motion.div key={unit.id} initial={{ opacity: 0, x: index % 2 ? 24 : -24 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * .1 }} style={{ position: "relative", zIndex: 1, display: "flex", justifyContent: index % 2 ? "flex-end" : "flex-start", gap: 16, alignItems: "center", flexDirection: index % 2 ? "row-reverse" : "row" }}><BrightCard selected={active} onClick={() => !locked && setOpenUnit(unit.id)} style={{ width: 220, opacity: locked ? .5 : 1, textAlign: "center" }}><span style={{ display: "grid", placeItems: "center", width: 66, height: 66, margin: "0 auto 10px", borderRadius: "50%", color: "#fff", background: locked ? "#a5a9b8" : "linear-gradient(145deg,#83e9ce,#8ca4f7 68%,#e8a4d5)", boxShadow: "0 8px 20px rgba(108,175,207,.32)", fontWeight: 950 }}>{locked ? "LOCK" : `${unitProgress.percent}%`}</span><strong>{unit.name}</strong><small style={{ display: "block", marginTop: 5, color: "#687798" }}>{unit.theme}</small></BrightCard>{active ? <BrightCard style={{ width: "min(430px,calc(100% - 236px))" }}><strong style={{ display: "block", marginBottom: 10 }}>{unit.name} ayah tiles</strong><div style={{ display: "grid", gap: 9 }}>{unit.ayahs.map((ayah) => <button key={ayah.id} type="button" onClick={() => router.push(`/cosmic/lessons/${unit.id}/${ayah.number}`)} style={{ display: "grid", gridTemplateColumns: "38px 1fr auto", gap: 9, alignItems: "center", padding: 10, border: "1px solid rgba(90,115,165,.16)", borderRadius: 14, color: "#3d4d73", background: mastered.has(ayah.id) ? "rgba(129,235,196,.25)" : "rgba(255,255,255,.56)", cursor: "pointer", textAlign: "left" }}><span style={{ width: 31, height: 31, display: "grid", placeItems: "center", borderRadius: "50%", color: "#fff", background: mastered.has(ayah.id) ? "#62cda1" : "#8e9ee1", fontWeight: 900 }}>{ayah.number}</span><span><span dir="rtl" style={{ display: "block", fontFamily: "serif", fontSize: 21, textAlign: "right" }}>{ayah.arabic}</span><small>{ayah.translation}</small></span><span>{mastered.has(ayah.id) ? "Done" : "Start"}</span></button>)}</div><div style={{ marginTop: 12, textAlign: "right" }}><CosmicButton variant="outline" onClick={() => router.push(`/cosmic/path/${unit.id}`)}>Enter planet world</CosmicButton></div></BrightCard> : null}</motion.div>; })}</div></section></main>;
+}

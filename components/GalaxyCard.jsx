@@ -1,0 +1,2 @@
+import PlanetCard from "./PlanetCard";
+export default function GalaxyCard({ galaxy }) { return <section className="galaxy-card"><div className="row"><span className="galaxy-icon">{galaxy.icon}</span><div><h2>{galaxy.name}</h2><p className="muted">{galaxy.description}</p></div></div><div className="planet-list">{galaxy.planets.map((planet) => <PlanetCard planet={planet} key={planet.id} />)}</div></section>; }

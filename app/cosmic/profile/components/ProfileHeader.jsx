@@ -1,0 +1,3 @@
+"use client";
+
+export default function ProfileHeader({ user }) { return <header className="cosmic-bright-card" style={{ display: "grid", gap: 8, padding: "clamp(22px,4vw,34px)", borderRadius: 25 }}><p style={{ margin: 0, color: "#ffdc8a", fontSize: 12, fontWeight: 900, letterSpacing: ".15em" }}>COSMIC PROFILE</p><h1 style={{ margin: 0, fontSize: "clamp(2.6rem,7vw,5rem)", letterSpacing: "-.065em", lineHeight: .95 }}>{user.username || "Qur'an traveler"}</h1><p style={{ maxWidth: 560, margin: 0, color: "#c4d4e9", lineHeight: 1.6 }}>Your personal constellation of steady learning, reflection, and discovery.</p></header>; }

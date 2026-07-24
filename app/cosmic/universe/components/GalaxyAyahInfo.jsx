@@ -1,0 +1,5 @@
+"use client";
+
+import Link from "next/link";
+
+export default function GalaxyAyahInfo({ ayah, user }) { if (!ayah) return null; const weak = user.weakAyahs?.includes(ayah.id); const mastered = user.ayahsMastered?.includes(ayah.id); const surahId = ayah.id.split("-")[0]; return <aside style={{ pointerEvents: "auto", width: 270, padding: 16, border: "1px solid rgba(184,219,255,.2)", borderRadius: 18, color: "#eaf5ff", background: "rgba(8,15,44,.8)", backdropFilter: "blur(12px)" }}><small style={{ color: "#a8c7ff", fontWeight: 900 }}>AYAH ORBIT</small><h2 style={{ margin: "6px 0" }}>Ayah {ayah.number}</h2><p dir="rtl" style={{ margin: "8px 0", fontFamily: "serif", fontSize: 24, textAlign: "right" }}>{ayah.arabic}</p><small style={{ display: "block", color: weak ? "#ffd98b" : mastered ? "#9ff2ca" : "#c4d1e8" }}>{weak ? "Ready for review" : mastered ? "Mastered" : "Not started"}</small><Link href={`/cosmic/lessons/${surahId}/${ayah.number}`} style={{ display: "inline-block", marginTop: 13, padding: "9px 10px", borderRadius: 11, color: "#0b1e2a", background: "#9ff2ca", textDecoration: "none", fontSize: 13, fontWeight: 900 }}>Start lesson</Link></aside>; }

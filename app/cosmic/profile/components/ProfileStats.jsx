@@ -1,0 +1,3 @@
+"use client";
+
+export default function ProfileStats({ user, mastery }) { return <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(120px,1fr))", gap: 10 }}>{[["XP", user.xp || 0, "✦"], ["Streak", `${user.streak || 0} days`, "🔥"], ["Mastery", `${mastery}%`, "◈"], ["Surahs", (user.surahsCompleted || []).length, "🪐"]].map(([label, value, icon]) => <article key={label} className="cosmic-bright-card" style={{ padding: 15, borderRadius: 17, textAlign: "center" }}><span aria-hidden="true" style={{ fontSize: 20 }}>{icon}</span><strong style={{ display: "block", fontSize: 19 }}>{value}</strong><small style={{ color: "#aebfda" }}>{label}</small></article>)}</section>; }

@@ -1,0 +1,7 @@
+"use client";
+
+import { motion } from "framer-motion";
+
+export default function StoreItemCard({ item, owned, onSelect }) {
+  return <motion.article className="cosmic-v2-card" whileHover={{ y: -4, scale: 1.01 }} style={{ display: "grid", gap: 12, padding: 17, borderRadius: 20, border: `1px solid ${owned ? "rgba(255,219,128,.35)" : "rgba(176,209,249,.16)"}`, background: owned ? "linear-gradient(135deg,rgba(172,115,39,.19),rgba(85,56,151,.13))" : "rgba(255,255,255,.045)" }}><div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}><span aria-hidden="true" style={{ width: 48, height: 48, display: "grid", placeItems: "center", borderRadius: 15, background: "rgba(139,219,255,.13)", fontSize: 25 }}>{item.icon}</span><small style={{ color: owned ? "#ffe094" : "#aebfda", fontWeight: 900 }}>{owned ? "Owned" : item.priceLabel || `${item.price} ✦`}</small></div><div><p style={{ margin: 0, color: "#ffdc8b", fontSize: 11, fontWeight: 900, letterSpacing: ".12em" }}>{item.category.toUpperCase()}</p><h2 style={{ margin: "4px 0", color: "#f1f8ff", fontSize: 20 }}>{item.name}</h2><p style={{ margin: 0, color: "#bbcae3", fontSize: 13, lineHeight: 1.45 }}>{item.description}</p></div><button type="button" onClick={() => onSelect(item)} className={owned ? "cosmic-button cosmic-button--outline" : "cosmic-button"}>{owned ? "View item" : item.action || "Preview purchase"}</button></motion.article>;
+}

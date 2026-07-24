@@ -1,0 +1,3 @@
+"use client";
+
+export default function GalaxyLegend() { return <aside style={{ pointerEvents: "auto", padding: 14, border: "1px solid rgba(184,219,255,.19)", borderRadius: 16, color: "#dbeaff", background: "rgba(8,15,44,.76)", backdropFilter: "blur(12px)" }}><strong style={{ display: "block", marginBottom: 8 }}>Galaxy legend</strong><small style={{ display: "block", marginTop: 5 }}><span style={{ color: "#9ff2ca" }}>●</span> Completed Surah</small><small style={{ display: "block", marginTop: 5 }}><span style={{ color: "#bfc5ff" }}>●</span> Available planet</small><small style={{ display: "block", marginTop: 5 }}><span style={{ color: "#ffd98b" }}>●</span> Review ayah</small></aside>; }

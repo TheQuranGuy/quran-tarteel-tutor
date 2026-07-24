@@ -1,0 +1,30 @@
+:root {
+  --cosmic-mint: #8df2ce;
+  --cosmic-pink: #f5a4d7;
+  --cosmic-ink: #25355c;
+  --cosmic-card: rgba(255,255,255,.78);
+  --cosmic-shadow: 0 24px 60px rgba(73, 77, 140, .18);
+}
+
+.cosmic-bright {
+  min-height: calc(100vh - 64px);
+  color: var(--cosmic-ink);
+  background: radial-gradient(circle at 12% 18%, rgba(141,242,206,.78), transparent 27%), radial-gradient(circle at 86% 18%, rgba(245,164,215,.72), transparent 29%), radial-gradient(circle at 54% 98%, rgba(163,196,255,.6), transparent 38%), linear-gradient(145deg,#f7fffc,#fff5fc 52%,#edf6ff);
+}
+.cosmic-dark {
+  min-height: calc(100vh - 64px);
+  color: #edf5ff;
+  background: radial-gradient(circle at 15% 82%, rgba(25,136,177,.32), transparent 36%), radial-gradient(circle at 84% 14%, rgba(152,78,183,.38), transparent 32%), radial-gradient(circle at 50% 42%, rgba(42,54,129,.28), transparent 40%), #070a23;
+}
+.cosmic-dark .cosmic-bright-card { border-color: rgba(181,213,255,.2); color: #eff7ff; background: rgba(14,22,61,.68); box-shadow: 0 24px 65px rgba(0,0,0,.34); }
+.cosmic-dark .cosmic-button--outline { color: #dfeeff; background: rgba(255,255,255,.06); border-color: rgba(196,224,255,.27); }
+.cosmic-dark .cosmic-button--dark { background: linear-gradient(135deg,#18224b,#6b3e89); }
+.cosmic-bright-card { border: 1px solid rgba(255,255,255,.86); border-radius: 28px; background: var(--cosmic-card); box-shadow: var(--cosmic-shadow); backdrop-filter: blur(14px); }
+.cosmic-button { border: 0; border-radius: 14px; padding: 13px 18px; cursor: pointer; font-weight: 900; transition: transform .18s ease, box-shadow .18s ease; }
+.cosmic-button:hover { transform: translateY(-2px); }
+.cosmic-button--mint { color:#153a3b; background: linear-gradient(135deg,#a6f8d7,#72dfc4); box-shadow: 0 12px 25px rgba(74,201,172,.28); }
+.cosmic-button--outline { color:#405078; background:rgba(255,255,255,.46); border:1px solid rgba(84,107,153,.23); }
+.cosmic-button--dark { color:#f3f7ff; background: linear-gradient(135deg,#29345f,#4f3e86); box-shadow:0 12px 25px rgba(49,49,111,.22); }
+.cosmic-star { position:absolute; border-radius:50%; background:var(--cosmic-pink); box-shadow:0 0 12px currentColor; pointer-events:none; }
+@keyframes cosmic-rise { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform:translateY(0); } }
+.cosmic-rise { animation: cosmic-rise .45s ease both; }

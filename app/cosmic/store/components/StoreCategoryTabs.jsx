@@ -1,0 +1,3 @@
+"use client";
+
+export default function StoreCategoryTabs({ categories, active, onChange }) { return <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 8 }}>{categories.map((category) => <button type="button" key={category} onClick={() => onChange(category)} style={{ flex: "0 0 auto", padding: "9px 13px", borderRadius: 99, cursor: "pointer", border: `1px solid ${active === category ? "#a0edff" : "rgba(178,210,248,.18)"}`, color: active === category ? "#07182e" : "#c7d7ec", background: active === category ? "#a0edff" : "rgba(255,255,255,.05)", fontWeight: 850 }}>{category}</button>)}</div>; }

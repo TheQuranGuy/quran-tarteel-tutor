@@ -1,0 +1,12 @@
+"use client";
+
+import { useEffect } from "react";
+import { motion } from "framer-motion";
+import AchievementBadge from "./AchievementBadge";
+import AchievementProgress from "./AchievementProgress";
+
+export default function AchievementModal({ achievement, onClose }) {
+  useEffect(() => { const close = (event) => { if (event.key === "Escape") onClose(); }; window.addEventListener("keydown", close); return () => window.removeEventListener("keydown", close); }, [onClose]);
+  if (!achievement) return null;
+  return <div role="presentation" onMouseDown={onClose} style={{ position: "fixed", zIndex: 90, inset: 0, display: "grid", placeItems: "center", padding: 18, background: "rgba(2,5,20,.74)", backdropFilter: "blur(9px)" }}><motion.section role="dialog" aria-modal="true" aria-label={`${achievement.name} achievement`} onMouseDown={(event) => event.stopPropagation()} initial={{ opacity: 0, y: 20, scale: .96 }} animate={{ opacity: 1, y: 0, scale: 1 }} style={{ width: "min(460px,100%)", padding: "30px", borderRadius: 26, border: "1px solid rgba(173,222,255,.28)", color: "#eff7ff", background: "radial-gradient(circle at 50% 0%,rgba(122,94,255,.3),transparent 50%),#101a3d", boxShadow: "0 22px 70px rgba(0,0,0,.4)" }}><div style={{ display: "grid", placeItems: "center", marginBottom: 15 }}><AchievementBadge icon={achievement.icon} unlocked={achievement.unlocked} justUnlocked={achievement.justUnlocked} /></div><p style={{ margin: 0, color: "#ffdc89", textAlign: "center", fontSize: 12, fontWeight: 900, letterSpacing: ".14em" }}>{achievement.unlocked ? "ACHIEVEMENT UNLOCKED" : "COSMIC MILESTONE"}</p><h2 style={{ margin: "7px 0", textAlign: "center", fontSize: 28 }}>{achievement.name}</h2><p style={{ margin: "0 0 20px", color: "#c4d4eb", textAlign: "center", lineHeight: 1.55 }}>{achievement.description}</p><AchievementProgress value={achievement.value} target={achievement.target} unlocked={achievement.unlocked} /><div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginTop: 24, padding: "12px 14px", borderRadius: 14, background: "rgba(255,255,255,.07)" }}><span style={{ color: "#b9cbe5" }}>{achievement.category} · mastery tracked from your path</span><strong style={{ color: "#ffe18f" }}>+{achievement.xp} XP</strong></div><button type="button" onClick={onClose} className="cosmic-button" style={{ width: "100%", marginTop: 18 }}>{achievement.unlocked ? "Wonderful" : "Keep exploring"}</button></motion.section></div>;
+}

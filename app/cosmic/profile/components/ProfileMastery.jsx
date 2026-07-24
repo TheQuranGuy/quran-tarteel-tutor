@@ -1,0 +1,4 @@
+"use client";
+
+import Link from "next/link";
+export default function ProfileMastery({ mastery, mastered, total }) { return <section className="cosmic-bright-card" style={{ padding: 18, borderRadius: 20 }}><div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline" }}><h2 style={{ margin: 0 }}>Mastery orbit</h2><strong style={{ color: "#a9f3ca" }}>{mastery}%</strong></div><div style={{ height: 9, borderRadius: 99, overflow: "hidden", margin: "12px 0", background: "rgba(255,255,255,.1)" }}><div style={{ height: "100%", width: `${mastery}%`, borderRadius: "inherit", background: "linear-gradient(90deg,#79e2ff,#8ceac7)" }} /></div><p style={{ margin: "0 0 13px", color: "#c3d3e9", fontSize: 13 }}>{mastered}/{total} available cosmic ayahs mastered.</p><Link href="/cosmic/mastery" className="cosmic-button cosmic-button--outline">Open mastery</Link></section>; }
