@@ -1,12 +1,32 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { useMemo } from "react";
 import PlacementResult from "./PlacementResult";
 
 export const PLACEMENT_QUESTION_COUNT = 12;
 
 function getOptionId(option, index) {
   return String(option?.id ?? option?.value ?? index);
+}
+
+function getQuestionSeed(question, fallback) {
+  return String(question?.id || fallback).split("").reduce((total, char) => total + char.charCodeAt(0), 0);
+}
+
+function shuffleOptions(options, question, fallback) {
+  const copy = [...options];
+  let seed = getQuestionSeed(question, fallback);
+  for (let index = copy.length - 1; index > 0; index -= 1) {
+    seed = (seed * 9301 + 49297) % 233280;
+    const swapIndex = seed % (index + 1);
+    [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
+  }
+  if (copy.length > 1 && question?.correctOptionId && String(copy[0]?.id) === String(question.correctOptionId)) {
+    const targetIndex = (Number(fallback) % (copy.length - 1)) + 1;
+    [copy[0], copy[targetIndex]] = [copy[targetIndex], copy[0]];
+  }
+  return copy;
 }
 
 /**
@@ -37,7 +57,7 @@ export default function PlacementQuiz({
   const count = Math.max(1, Math.min(safeQuestions.length || PLACEMENT_QUESTION_COUNT, Number(totalQuestions) || safeQuestions.length || PLACEMENT_QUESTION_COUNT));
   const safeIndex = Math.max(0, Math.min(count - 1, Number(currentIndex) || 0));
   const question = safeQuestions[safeIndex];
-  const choices = Array.isArray(question?.options) ? question.options : [];
+  const choices = useMemo(() => shuffleOptions(Array.isArray(question?.options) ? question.options : [], question, safeIndex), [question, safeIndex]);
   const checking = isLoading || answerState === "checking";
   const hasSelection = selectedOptionId !== null && selectedOptionId !== undefined && selectedOptionId !== "";
   const hasAnswerFeedback = Boolean(feedback?.status);

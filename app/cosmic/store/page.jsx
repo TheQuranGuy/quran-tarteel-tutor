@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { updateUser } from "../../../lib/user";
 import StarParticles from "../../../components/cosmic/StarParticles";
+import { useCosmicUser } from "../../../components/cosmic/useCosmicUser";
 import StoreHeader from "./components/StoreHeader";
 import StoreCategoryTabs from "./components/StoreCategoryTabs";
 import StoreItemCard from "./components/StoreItemCard";
@@ -13,7 +14,7 @@ import StoreSubscriptionCard from "./components/StoreSubscriptionCard";
 
 const STORE_KEY = "sheikhduo-cosmic-store";
 const DEFAULT_STORE = { crystals: 250, owned: [], boosters: [], shields: 0, eventPasses: [], premium: false, equipped: { theme: "", skin: "", trail: "" } };
-const CATEGORIES = ["Cosmetics", "Boosters", "Shields", "Event passes", "Bundles", "Currency"];
+const CATEGORIES = ["Cosmetics", "Boosters", "Shields", "Event passes", "Bundles"];
 const ITEMS = [
   { id: "nebula-theme", category: "Cosmetics", icon: "🌌", name: "Nebula skin", description: "A violet nebula treatment for your Quran Tarteel atmosphere.", price: 80, effect: "theme", value: "nebula" },
   { id: "starlight-guide", category: "Cosmetics", icon: "🧕", name: "Starlight guide skin", description: "A purely visual glow for your chosen cosmic guide.", price: 100, effect: "skin", value: "starlight" },
@@ -34,6 +35,7 @@ const PREMIUM = { id: "cosmic-plus", category: "Subscription", icon: "✧", name
 function readStore() { try { return { ...DEFAULT_STORE, ...JSON.parse(window.localStorage.getItem(STORE_KEY) || "{}") }; } catch { return DEFAULT_STORE; } }
 
 export default function CosmicStorePage() {
+  const user = useCosmicUser();
   const [store, setStore] = useState(DEFAULT_STORE);
   const [active, setActive] = useState("Cosmetics");
   const [selected, setSelected] = useState(null);
@@ -42,15 +44,16 @@ export default function CosmicStorePage() {
   function applyVisual(item) { if (item.effect === "theme") { document.documentElement.dataset.cosmicStoreTheme = item.value; document.body.style.background = "radial-gradient(circle at 20% 10%,rgba(234,102,184,.28),transparent 30%),radial-gradient(circle at 80% 70%,rgba(110,105,255,.28),transparent 35%),#130d36"; updateUser({ preferredTheme: item.value }); } }
   function purchase(item) {
     if (item.effect !== "shield" && store.owned.includes(item.id)) { setSelected(null); return; }
-    if (item.price > store.crystals) return;
+    if (item.price > (user.xp || 0)) return;
     const owned = item.effect === "shield" ? store.owned : [...store.owned, item.id];
-    const next = { ...store, crystals: store.crystals - item.price, owned, boosters: item.effect === "booster" ? [...new Set([...store.boosters, item.value])] : store.boosters, shields: item.effect === "shield" ? store.shields + item.quantity : store.shields, eventPasses: item.effect === "event" ? [...new Set([...store.eventPasses, item.value])] : store.eventPasses, premium: item.effect === "premium" ? true : store.premium, equipped: item.effect === "theme" ? { ...store.equipped, theme: item.value } : item.effect === "skin" ? { ...store.equipped, skin: item.value } : item.effect === "trail" ? { ...store.equipped, trail: item.value } : store.equipped };
+    const next = { ...store, owned, boosters: item.effect === "booster" ? [...new Set([...store.boosters, item.value])] : store.boosters, shields: item.effect === "shield" ? store.shields + item.quantity : store.shields, eventPasses: item.effect === "event" ? [...new Set([...store.eventPasses, item.value])] : store.eventPasses, premium: item.effect === "premium" ? true : store.premium, equipped: item.effect === "theme" ? { ...store.equipped, theme: item.value } : item.effect === "skin" ? { ...store.equipped, skin: item.value } : item.effect === "trail" ? { ...store.equipped, trail: item.value } : store.equipped };
     if (item.effect === "currency") next.crystals += item.gain;
     if (item.effect === "bundle") { next.owned = [...new Set([...next.owned, "nebula-theme", "comet-trail", "celebration-glow"])]; next.equipped = { ...next.equipped, theme: "nebula", trail: "comet" }; }
     persist(next);
+    if (item.price > 0) updateUser((current) => ({ ...current, xp: Math.max(0, (current.xp || 0) - item.price) }));
     applyVisual(item.effect === "bundle" ? { effect: "theme", value: "nebula" } : item);
     setSelected(null);
   }
   const visible = useMemo(() => ITEMS.filter((item) => item.category === active), [active]);
-  return <main className="cosmic-dark cd-ecosystem-shell" style={{ position: "relative", minHeight: "calc(100vh - 64px)", padding: "42px 16px 90px" }}><StarParticles count={55} color="#f7d58c" /><section style={{ position: "relative", width: "min(1040px,100%)", margin: "0 auto", display: "grid", gap: 18 }}><StoreHeader store={store} onCurrency={() => setActive("Currency")} /><div style={{ display: "flex", gap: 9, flexWrap: "wrap" }}><Link href="/cosmic/profile" className="cosmic-button cosmic-button--outline">Profile</Link><Link href="/cosmic/path" className="cosmic-button cosmic-button--outline">Learning path</Link></div><StoreSubscriptionCard premium={store.premium} onSelect={() => setSelected(PREMIUM)} /><StoreCategoryTabs categories={CATEGORIES} active={active} onChange={setActive} />{active === "Bundles" ? <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 13 }}>{visible.map((item) => <StoreBundleCard key={item.id} item={item} owned={store.owned.includes(item.id)} onSelect={setSelected} />)}</div> : <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 13 }}>{visible.map((item) => <StoreItemCard key={item.id} item={item} owned={store.owned.includes(item.id)} onSelect={setSelected} />)}</div>}</section><StorePurchaseModal item={selected} store={store} onClose={() => setSelected(null)} onConfirm={purchase} /></main>;
+  return <main className="cosmic-dark cd-ecosystem-shell" style={{ position: "relative", minHeight: "calc(100vh - 64px)", padding: "42px 16px 90px" }}><StarParticles count={55} color="#f7d58c" /><section style={{ position: "relative", width: "min(1040px,100%)", margin: "0 auto", display: "grid", gap: 18 }}><StoreHeader store={store} xp={user.xp || 0} onCurrency={() => setActive("Cosmetics")} /><div style={{ display: "flex", gap: 9, flexWrap: "wrap" }}><Link href="/cosmic/profile" className="cosmic-button cosmic-button--outline">Profile</Link><Link href="/cosmic/path" className="cosmic-button cosmic-button--outline">Learning path</Link></div><StoreSubscriptionCard premium={store.premium} onSelect={() => setSelected(PREMIUM)} /><StoreCategoryTabs categories={CATEGORIES} active={active} onChange={setActive} />{active === "Bundles" ? <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 13 }}>{visible.map((item) => <StoreBundleCard key={item.id} item={item} owned={store.owned.includes(item.id)} onSelect={setSelected} />)}</div> : <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 13 }}>{visible.map((item) => <StoreItemCard key={item.id} item={item} owned={store.owned.includes(item.id)} onSelect={setSelected} />)}</div>}</section><StorePurchaseModal item={selected} store={{ ...store, crystals: user.xp || 0 }} onClose={() => setSelected(null)} onConfirm={purchase} /></main>;
 }

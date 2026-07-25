@@ -290,7 +290,7 @@
 .cd-brand { display: inline-flex; align-items: baseline; gap: 6px; color: #f8fbff; font-family: var(--cd-font-display); font-size: 1.2rem; font-weight: 950; letter-spacing: -0.055em; text-decoration: none; white-space: nowrap; }
 .cd-brand strong { color: var(--cd-cyan); }
 .cd-brand small { color: #c5b6ff; font-family: var(--cd-font-number); font-size: .58rem; letter-spacing: .08em; }
-.cd-nav-links { display: flex; align-items: center; gap: 3px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.cd-nav-links { display: flex; align-items: center; gap: 3px; min-width: 0; overflow: visible; scrollbar-width: none; }
 .cd-nav-links::-webkit-scrollbar { display: none; }
 .cd-nav-link,
 .cd-nav-more summary { display: inline-flex; align-items: center; min-height: 34px; border-radius: 10px; padding: 7px 9px; color: #b9c8e6; font-size: .78rem; font-weight: 850; text-decoration: none; white-space: nowrap; transition: color 160ms var(--cd-ease), background 160ms var(--cd-ease), translate 160ms var(--cd-ease); }
@@ -303,7 +303,7 @@
 .cd-nav-more summary::-webkit-details-marker { display: none; }
 .cd-nav-more summary::after { width: 6px; height: 6px; margin-left: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; content: ""; rotate: 45deg; translate: 0 -2px; transition: rotate 180ms var(--cd-ease), translate 180ms var(--cd-ease); }
 .cd-nav-more[open] summary::after { rotate: 225deg; translate: 0 2px; }
-.cd-nav-menu { position: absolute; right: 0; top: calc(100% + 11px); display: grid; min-width: 178px; padding: 7px; border: 1px solid rgba(194,223,255,.2); border-radius: 16px; background: rgba(10, 15, 46, .96); box-shadow: 0 22px 54px rgba(0,0,0,.4); backdrop-filter: blur(18px); animation: cd-menu-in 180ms var(--cd-ease) both; }
+.cd-nav-menu { position: fixed; right: max(14px, calc((100vw - 1240px) / 2 + 14px)); top: 62px; z-index: 1000; display: grid; min-width: 188px; max-height: min(520px, calc(100svh - 78px)); overflow-y: auto; overscroll-behavior: contain; padding: 7px; border: 1px solid rgba(194,223,255,.2); border-radius: 16px; background: rgba(10, 15, 46, .98); box-shadow: 0 22px 54px rgba(0,0,0,.48); backdrop-filter: blur(18px); animation: cd-menu-in 180ms var(--cd-ease) both; }
 .cd-nav-menu .cd-nav-link { color: #d5e4f8; }
 .cd-nav-status { display: inline-flex; align-items: center; gap: 10px; color: #c8dcf1; font-size: .78rem; white-space: nowrap; }
 .cd-xp-score { padding: 6px 9px; border: 1px solid rgba(255,211,110,.22); border-radius: 999px; color: #ffdb87; background: rgba(255,211,110,.08); font-family: var(--cd-font-number); font-size: .74rem; font-weight: 900; }
@@ -331,7 +331,9 @@
 @media (max-width: 620px) {
   .cd-nav-inner { min-height: 58px; }
   .cd-brand { font-size: 1.05rem; }
-  .cd-nav-links { flex: 0 0 100%; order: 3; width: 100%; padding: 0 0 8px; }
+  .cd-nav-links { flex: 0 0 100%; order: 3; width: 100%; overflow-x: auto; padding: 0 0 8px; }
+  .cd-nav-menu { right: 10px; left: 10px; top: 104px; min-width: 0; max-height: calc(100svh - 118px); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cd-nav-menu .cd-nav-link { justify-content: center; min-height: 40px; }
   .cd-nav-status { margin-left: auto; }
   .cd-nav-link,
   .cd-nav-more summary { min-height: 30px; padding: 6px 8px; font-size: .72rem; }
@@ -571,7 +573,7 @@
 .cosmic-leaderboard-row.is-you { border-color: #8ce1b4 !important; background: #edfff2 !important; }
 
 .cosmic-tutor-shell .cosmic-button { min-height: 42px; }
-.cosmic-tutor-chat { min-height: 420px !important; padding: clamp(14px, 3vw, 24px) !important; }
+.cosmic-tutor-chat { min-height: min(280px, calc(100svh - 370px)) !important; max-height: min(460px, calc(100svh - 315px)) !important; padding: clamp(14px, 3vw, 24px) !important; }
 .cosmic-tutor-chat > p { color: #2682b4 !important; }
 .cosmic-tutor-message { color: #3a4960 !important; background: #f4f8ff !important; border: 1px solid #d9e6f5 !important; box-shadow: 0 6px 13px rgba(30, 67, 104, .05); }
 .cosmic-tutor-message.is-user { color: #155b4e !important; background: #e8fff5 !important; border-color: #b7edd4 !important; }
@@ -617,7 +619,19 @@
   .cosmic-tutor-chat,
   .cosmic-tutor-aside { border-radius: 20px !important; }
   .cosmic-tutor-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .cosmic-tutor-chat { min-height: 235px !important; max-height: 320px !important; }
   .cosmic-challenge-stat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .cosmic-tutor-shell form { display: grid !important; grid-template-columns: auto minmax(0, 1fr); }
+  .cosmic-tutor-shell form button[type="submit"] { grid-column: 1 / -1; width: 100%; }
+  .cd-ecosystem-shell { padding: 26px 12px 72px !important; }
+  .cd-ecosystem-shell h1 { font-size: clamp(2.1rem, 12vw, 3.4rem) !important; }
+  .cd-ecosystem-shell .cosmic-button { min-height: 42px; }
+}
+@media (max-width: 460px) {
+  .cosmic-challenge-stat-grid { grid-template-columns: 1fr !important; }
+  .placement-answer { grid-template-columns: 28px minmax(0, 1fr) 16px !important; padding: 10px !important; }
+  .placement-answer strong { font-size: 13px !important; }
+  .placement-answer small { font-size: 11px !important; }
 }
 @media (prefers-reduced-motion: reduce) {
   .cosmic-learning-shell::before,

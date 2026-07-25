@@ -23,11 +23,52 @@ const modes = [
 ];
 const quizModes = new Set(["meaning", "choice", "blank", "daily", "mastery", "speed"]);
 
+function seededShuffle(items, seedText) {
+  const result = [...items];
+  let seed = String(seedText || "quiz").split("").reduce((total, char) => total + char.charCodeAt(0), 0);
+  for (let index = result.length - 1; index > 0; index -= 1) {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    const swapIndex = seed % (index + 1);
+    [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
+  }
+  return result;
+}
+
+function avoidFirstCorrect(items, seedText) {
+  if (items.length > 1 && items[0]?.correct) {
+    const targetIndex = (String(seedText || "").length % (items.length - 1)) + 1;
+    [items[0], items[targetIndex]] = [items[targetIndex], items[0]];
+  }
+  return items;
+}
+
 function Choices({ ayah, mode, onAnswer, disabled }) {
   const options = useMemo(() => [ayah.translation, "A description of trade", "A list of travel routes", "A line without meaning"], [ayah]);
   const prompt = mode === "blank" ? `Complete the final word: “${ayah.translation.split(" ").slice(0, -1).join(" ")} ...”` : mode === "mastery" ? "Mastery check: choose the exact meaning." : mode === "speed" ? "Fast answer: choose the exact meaning." : "Choose the closest meaning of this ayah.";
   if (mode === "blank") return <QuestionCard title="FILL IN THE BLANK" question={prompt}><AnswerButton onClick={() => onAnswer(true)} disabled={disabled}>{ayah.translation.split(" ").at(-1)}</AnswerButton><AnswerButton onClick={() => onAnswer(false)} disabled={disabled}>Mercy</AnswerButton></QuestionCard>;
   return <QuestionCard title={mode === "daily" ? "DAILY COSMIC CHALLENGE" : "MEANING CHECK"} question={prompt}>{options.map((option, index) => <AnswerButton key={option} onClick={() => onAnswer(index === 0)} disabled={disabled}>{option}</AnswerButton>)}</QuestionCard>;
+}
+
+function VariedChoices({ ayah, mode, onAnswer, disabled }) {
+  const translation = ayah.translation || "English translation is unavailable for this ayah.";
+  const words = translation.split(/\s+/).filter(Boolean);
+  const finalWord = words.at(-1)?.replace(/[.,!?;:]+$/g, "") || "guidance";
+  const meaningOptions = useMemo(() => avoidFirstCorrect(seededShuffle([
+    { label: translation, correct: true },
+    { label: "A reminder to seek only worldly success", correct: false },
+    { label: "A historical list with no spiritual lesson", correct: false },
+    { label: "A command to ignore reflection and review", correct: false },
+  ], `${ayah.id}-${mode}`), `${ayah.id}-${mode}`), [ayah.id, mode, translation]);
+  const blankOptions = useMemo(() => avoidFirstCorrect(seededShuffle([
+    { label: finalWord, correct: true },
+    { label: "trade", correct: false },
+    { label: "journey", correct: false },
+    { label: "silence", correct: false },
+  ], `${ayah.id}-${mode}-blank`), `${ayah.id}-${mode}-blank`), [ayah.id, finalWord, mode]);
+  const prompt = mode === "blank" ? `Complete the final word: "${words.slice(0, -1).join(" ")} ..."` : mode === "mastery" ? "Mastery check: choose the exact meaning." : mode === "speed" ? "Fast answer: choose the exact meaning." : "Choose the closest meaning of this ayah.";
+  const title = mode === "daily" ? "DAILY COSMIC CHALLENGE" : mode === "blank" ? "FILL IN THE BLANK" : "MEANING CHECK";
+  const choices = mode === "blank" ? blankOptions : meaningOptions;
+  return <QuestionCard title={title} question={prompt}>{choices.map((option) => <AnswerButton key={option.label} onClick={() => onAnswer(option.correct)} disabled={disabled}>{option.label}</AnswerButton>)}</QuestionCard>;
 }
 
 export default function LessonContainer({ ayah }) {
@@ -77,7 +118,7 @@ export default function LessonContainer({ ayah }) {
   else if (mode === "memorise") body = <><p style={{ color: "#c9d8ed" }}>Try from memory, then reveal the ayah only when needed.</p>{revealed ? <InteractiveAyah arabicText={arabicText} translation={ayah.translation} ayahId={ayah.id} words={ayah.words} /> : <p aria-label="Hidden Arabic ayah" dir="rtl" className="cosmic-arabic" style={{ minHeight: 118, padding: 20, borderRadius: 18, color: "#edf6ff", background: "rgba(0,0,0,.18)", fontFamily: "serif", fontSize: "clamp(2.3rem,7vw,4.1rem)", textAlign: "right" }}>....................</p>}<button type="button" className="cosmic-secondary-action" onClick={() => setRevealed((value) => !value)} style={{ border: "1px solid rgba(172,214,255,.3)", borderRadius: 13, padding: "11px 14px", cursor: "pointer", color: "#eaf5ff", background: "transparent", fontWeight: 850 }}>{revealed ? "Hide ayah" : "Reveal ayah"}</button><button type="button" className="cosmic-primary-action" onClick={() => finish("Memorisation practice complete.")} style={{ marginLeft: 9, border: 0, borderRadius: 13, padding: "12px 16px", cursor: "pointer", color: "#0c2130", background: "#9ff2ca", fontWeight: 900 }}>I practised</button></>;
   else if (mode === "recitation") body = <><p style={{ color: "#c9d8ed", marginTop: 0 }}>Listen to the reference, then let the browser compare the word sequence you recite. It is word-level guidance, not a tajweed verdict.</p><InteractiveAyah arabicText={arabicText} translation={ayah.translation} ayahId={ayah.id} words={ayah.words} /><div style={{ marginTop: 16 }}><AudioPlayer ayah={ayah} /></div><div style={{ marginTop: 18 }}><RecitationCoach arabicText={arabicText} translation={ayah.translation} /></div><button type="button" className="cosmic-primary-action" onClick={() => finish("Recitation practice complete.")} style={{ marginTop: 16, border: 0, borderRadius: 13, padding: "12px 16px", cursor: "pointer", color: "#0c2130", background: "#9ff2ca", fontWeight: 900 }}>I practised aloud</button></>;
   else if (mode === "weak") body = <><MeaningCard ayah={ayah} /><InteractiveAyah arabicText={arabicText} translation={ayah.translation} ayahId={ayah.id} words={ayah.words} /><button type="button" className="cosmic-primary-action" onClick={() => finish("Review complete. This ayah is stronger now.")} style={{ border: 0, borderRadius: 13, padding: "12px 16px", cursor: "pointer", color: "#0c2130", background: "#9ff2ca", fontWeight: 900 }}>Mark reviewed</button></>;
-  else body = <Choices ayah={ayah} mode={mode} onAnswer={answer} disabled={lives <= 0 || (["daily", "speed"].includes(mode) && timer <= 0)} />;
+  else body = <VariedChoices ayah={ayah} mode={mode} onAnswer={answer} disabled={lives <= 0 || (["daily", "speed"].includes(mode) && timer <= 0)} />;
 
   return <main className="cosmic-dark cosmic-learning-shell cosmic-lesson-shell" style={{ position: "relative", minHeight: "calc(100vh - 64px)", padding: "clamp(24px,5vw,60px) 16px" }}><StarParticles color="#c5b7ff" /><motion.section initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} className="cosmic-learning-card cosmic-lesson-card" style={{ position: "relative", width: "min(900px,100%)", margin: "0 auto", padding: "clamp(18px,4vw,38px)", border: "1px solid rgba(177,212,255,.22)", borderRadius: 28, background: "linear-gradient(145deg,rgba(19,34,84,.94),rgba(10,15,49,.98))", boxShadow: "0 30px 85px rgba(0,0,0,.35)" }}><XPBubble amount={mode === "daily" ? 12 : 6} visible={completed} /><LessonHeader ayah={ayah} user={user} lives={lives} quiz={quiz} mastery={mastery} excited={completed || result.startsWith("Correct")} /><div className="cosmic-mode-rail" style={{ display: "flex", gap: 7, flexWrap: "wrap", margin: "22px 0" }}>{modes.map(([id, label]) => <button key={id} type="button" className={`cosmic-mode-button ${mode === id ? "is-active" : ""}`} onClick={() => resetMode(id)} style={{ border: mode === id ? "1px solid #a9cfff" : "1px solid rgba(255,255,255,.13)", borderRadius: 999, padding: "7px 10px", cursor: "pointer", color: "#eaf5ff", background: mode === id ? "rgba(139,180,255,.22)" : "transparent", fontSize: 12, fontWeight: 800 }}>{label}</button>)}</div>{["daily", "speed"].includes(mode) ? <p className="cosmic-timer-label" style={{ margin: "0 0 12px", color: "#ffe196", fontWeight: 900 }}>STAR TIMER: {timer}s</p> : null}<section className="cosmic-activity-panel" style={{ minHeight: 280, padding: "clamp(15px,3vw,26px)", borderRadius: 20, background: "rgba(255,255,255,.045)" }}>{body}{result && !completed ? <p style={{ color: "#ffe196", fontWeight: 800 }}>{result}</p> : null}</section><LessonFooter onBack={backToPath} step={modes.findIndex(([id]) => id === mode)} total={modes.length} /></motion.section></main>;
 }

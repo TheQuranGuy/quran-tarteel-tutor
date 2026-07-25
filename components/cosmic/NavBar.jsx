@@ -17,6 +17,7 @@ const primaryLinks = [
 const moreLinks = [
   ["/cosmic/command", "Learning OS"],
   ["/cosmic/skill-tree", "Skill tree"],
+  ["/cosmic/store", "Store"],
   ["/cosmic/inventory", "Inventory"],
   ["/cosmic/challenge", "Challenge"],
   ["/cosmic/review", "Review"],
